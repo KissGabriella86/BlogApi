@@ -221,5 +221,51 @@ namespace BlogApi.Controllers
         }
         /*4. Készítsen végpontot, ami lekérdezi egy adott blogger name és email értékét.*/
 
+
+        [HttpGet("getBloggerNameAndEmail/{id}")]
+        public object GetBloggerNameAndEmail([FromRoute] int id)
+        {
+            var connector = new MySqlConnection(ConnectionString);
+
+            connector.Open();
+
+            string sql = @"SELECT name, email FROM blogger WHERE id = @id";
+
+            var cmd = new MySqlCommand(sql, connector);
+
+            cmd.Parameters.AddWithValue("@id", id);
+
+            var datareader = cmd.ExecuteReader();
+
+            object result = null;
+
+            if (datareader.Read())
+            {
+                result = new
+                {
+                    message = "Sikeres lekérdezés.",
+                    result = new
+                    {
+                        Name = datareader.GetString(0),
+                        Email = datareader.GetString(1)
+                    }
+                };
+            }
+            else
+            {
+                result = new
+                {
+                    message = "Sikertelen lekérdezés.",
+                    result = ""
+                };
+            }
+
+            connector.Close();
+
+            return result;
+        }
+
+
+
     }
 }
