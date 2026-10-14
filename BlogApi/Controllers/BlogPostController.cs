@@ -48,7 +48,28 @@ namespace BlogApi.Controllers
             return new { message = "Sikeres lekérdezés.", result = lista };
         }
 
-      
+        [HttpGet("getNumberOfPosts")]
+        public object NumberOfPosts()
+        {
+            var connector = new MySqlConnection(ConnectionString);
+
+            connector.Open();
+
+            string sql = @"SELECT COUNT(*) FROM blogpost";
+
+            var cmd = new MySqlCommand(sql, connector);
+
+            var datareader = cmd.ExecuteReader();
+
+            datareader.Read();
+
+            var db = datareader.GetInt32(0);
+
+            connector.Close();
+
+            return new { message = "Sikeres lekérdezés.", result = db };
+        }
+
 
     }
 }
