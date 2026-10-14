@@ -71,5 +71,45 @@ namespace BlogApi.Controllers
         }
 
 
+        [HttpGet("getBloggerPostsNumber/{id}")]
+        public object GetBloggerPostsNumber([FromRoute] int id)
+        {
+            var connector = new MySqlConnection(ConnectionString);
+
+            connector.Open();
+
+            string sql = @"SELECT blogger.name, COUNT(blogpost.id) AS `BejegyzesekSzama`
+                            FROM `blogger` 
+                            INNER JOIN blogpost ON blogger.id = blogpost.blogId
+                            WHERE blogger.id = @id;";
+
+            var cmd = new MySqlCommand(sql, connector);
+
+            cmd.Parameters.AddWithValue("@id", id);
+
+            var datareader = cmd.ExecuteReader();
+            object result = null;
+
+            if (datareader.Read() && datareader != null)
+            {
+                var bloggerPosts = new NumberOfBloggerPostsDto
+                {
+                    Name = datareader.GetString(0),
+                    Number = datareader.GetInt32(1)
+                };
+
+                result = new { message = "Sikeres lekérdezés.", result = bloggerPosts };
+            }
+            else
+            {
+                result = new { message = "Sikertelen lekérdezés.", result = "" };
+            }
+
+
+
+            connector.Close();
+
+            return result;
+        }
     }
 }
